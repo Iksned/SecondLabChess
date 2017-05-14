@@ -11,7 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.TransferHandler;
 
-//Тестовый класс, не для финальной версии
+//Тестовый класс, не для финальной версии.
 public class Drag extends JFrame {
 
 
