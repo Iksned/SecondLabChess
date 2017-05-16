@@ -95,7 +95,7 @@ public abstract class Move {
         //Двигаем фигуру после выставления доски.
         builder.setFigure(this.movedFigure.moveFigure(this));
         builder.setMoveMaker(this.board.getCurrentPlayer().getOpponent().getSide());
-
+        movedFigure.setFirstMove(false);
         return builder.build();
     }
 
@@ -128,7 +128,25 @@ public abstract class Move {
         //TODO
         @Override
         public Board execute() {
-            return null;
+            final Builder builder = new Builder();
+
+            for(Figure figure : this.board.getCurrentPlayer().getAliveFigures())
+            {
+                if(!this.movedFigure.equals(figure))
+                {
+                    builder.setFigure(figure);
+                }
+            }
+            for(Figure figure : this.board.getCurrentPlayer().getOpponent().getAliveFigures())
+            {
+                if(!this.attakedFigure.equals(figure))
+                builder.setFigure(figure);
+            }
+            //Двигаем фигуру после выставления доски.
+            builder.setFigure(this.movedFigure.moveFigure(this));
+            builder.setMoveMaker(this.board.getCurrentPlayer().getOpponent().getSide());
+            movedFigure.setFirstMove(false);
+            return builder.build();
         }
 
         @Override
@@ -211,6 +229,7 @@ public abstract class Move {
             builder.setFigure(movedPawn);
             builder.setOnPassPawn(movedPawn);
             builder.setMoveMaker(this.board.getCurrentPlayer().getOpponent().getSide());
+            movedFigure.setFirstMove(false);
             return builder.build();
         }
     }
@@ -260,6 +279,7 @@ public abstract class Move {
             builder.setFigure(this.movedFigure.moveFigure(this));
             builder.setFigure(new Rook( this.castleRookTarget, this.castleRook.getFigureSide()));
             builder.setMoveMaker(this.board.getCurrentPlayer().getOpponent().getSide());
+            movedFigure.setFirstMove(false);
             return builder.build();
         }
     }

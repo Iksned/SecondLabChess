@@ -11,7 +11,7 @@ public abstract class Figure {
     protected final FigureType figureType;
     protected final int position;
     protected final FigureSide side;
-    protected final boolean firstMove;
+    protected boolean firstMove;
     private final int cachedHash;
 
     Figure(int position, FigureSide side,FigureType figureType)
@@ -20,8 +20,12 @@ public abstract class Figure {
         this.side = side;
         this.figureType = figureType;
         //TODO
-        this.firstMove = false;
+        this.firstMove = true;
         this.cachedHash = calcHashCode();
+    }
+
+    public void setFirstMove(boolean firstMove) {
+        this.firstMove = firstMove;
     }
 
     private int calcHashCode() {
@@ -59,9 +63,8 @@ public abstract class Figure {
 
     public abstract Collection<Move> calcMoves(final Board board);
 
-    public boolean isFirstMove()
-    {
-        return this.firstMove;
+    public boolean isFirstMove() {
+        return firstMove;
     }
 
     public int getFigurePos() {

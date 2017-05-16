@@ -31,12 +31,12 @@ public class Pawn extends Figure {
             {
                 continue;
             }
-            if(POSSIBLE_MOVE == 8 || POSSIBLE_MOVE == 16 && !board.getTile(moveCoordinate).isOccupied())
+            if(POSSIBLE_MOVE == 8 && !board.getTile(moveCoordinate).isOccupied())
             {
                 //TODO
                 passMoves.add(new MajorMove(board,this,moveCoordinate));
             }
-            else if(POSSIBLE_MOVE == 16 && this.isFirstMove() &&
+            if(POSSIBLE_MOVE == 16 && this.isFirstMove() &&
                     ((BoardUtils.SECOND_ROW[this.position] && this.getFigureSide().isBlack())
                     || (BoardUtils.SEVEN_ROW[this.position] && this.getFigureSide().isWhite())))
             {
@@ -46,7 +46,8 @@ public class Pawn extends Figure {
                 {
                     passMoves.add(new PawnJumpMove(board,this,moveCoordinate));
                 }
-            } else if(POSSIBLE_MOVE == 7 && !((BoardUtils.EIGHT_COLUMN[this.position] && this.side.isWhite())
+            }
+            if(POSSIBLE_MOVE == 7 && !((BoardUtils.EIGHT_COLUMN[this.position] && this.side.isWhite())
                                             || (BoardUtils.FIRST_COLUMN[this.position] && this.side.isBlack())))
             {
                 if(board.getTile(moveCoordinate).isOccupied())
@@ -59,7 +60,7 @@ public class Pawn extends Figure {
                     }
                 }
             }
-            else if (POSSIBLE_MOVE == 9 && !((BoardUtils.FIRST_COLUMN[this.position] && this.side.isWhite())
+            if (POSSIBLE_MOVE == 9 && !((BoardUtils.FIRST_COLUMN[this.position] && this.side.isWhite())
                     || (BoardUtils.EIGHT_COLUMN[this.position] && this.side.isBlack())))
             {
                 if(board.getTile(moveCoordinate).isOccupied()) {

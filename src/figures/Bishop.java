@@ -27,7 +27,7 @@ public class Bishop extends Figure {
         for (int POSSIBLE_MOVES_VECTOR : POSSIBLE_MOVES_VECTORS) {
             int moveCoordinate = this.position;
 
-            while (BoardUtils.isMoveValid(moveCoordinate))
+            while (BoardUtils.isMoveValid(moveCoordinate) && !isEightColumn(moveCoordinate,POSSIBLE_MOVES_VECTOR) && !isFirstColumn(moveCoordinate,POSSIBLE_MOVES_VECTOR))
             {
                 if (isFirstColumn(this.position,POSSIBLE_MOVES_VECTOR)
                    ||isEightColumn(this.position,POSSIBLE_MOVES_VECTOR))

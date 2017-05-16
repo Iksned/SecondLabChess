@@ -22,7 +22,7 @@ public class BoardUtils {
         do {
             row[rowNumber] = true;
             rowNumber++;
-        }while (rowNumber % NUM_TILES_ON_ROW == 0);
+        }while (rowNumber % NUM_TILES_ON_ROW != 0);
         return row;
     }
 

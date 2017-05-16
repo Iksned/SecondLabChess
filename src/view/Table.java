@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static javax.swing.SwingUtilities.isLeftMouseButton;
@@ -38,6 +39,8 @@ public class Table {
     private Tile currentTile;
     private Tile targetTile;
     private Figure movedFigure;
+    private BoardDirection boardDirection;
+    private boolean showPosMoves;
 
     private static final Dimension BOARD_PANEL_DIMENSION = new Dimension(400,350);
     private static final Dimension TILE_PANEL_DIMENSION = new Dimension(10,10);
@@ -51,6 +54,8 @@ public class Table {
         final JMenuBar tableMenuBar = fillMenuBar();
         this.board = Board.createDefaultBoard();
         this.gameFrame.setJMenuBar(tableMenuBar);
+        this.boardDirection = BoardDirection.NORMAL;
+        this.showPosMoves = true;
         this.gameFrame.setSize(FRAME_DIMENSION);
         this.boardPanel = new BoardPanel();
         this.gameFrame.add(this.boardPanel, BorderLayout.CENTER);
@@ -61,6 +66,7 @@ public class Table {
     private JMenuBar fillMenuBar() {
         final JMenuBar tableMenuBar = new JMenuBar();
         tableMenuBar.add(createFileMenu());
+        tableMenuBar.add(createPrefMenu());
         return tableMenuBar;
         }
 
@@ -83,8 +89,68 @@ public class Table {
                 System.exit(0);
             }
         });
+        netMenu.addSeparator();
         netMenu.add(exit);
         return netMenu;
+    }
+
+    private JMenu createPrefMenu()
+    {
+        final JMenu preferences = new JMenu("Pref's");
+        final JMenuItem flipper = new JMenuItem("Flip Board");
+        final JCheckBoxMenuItem showMoves = new JCheckBoxMenuItem("Show possible moves");
+        flipper.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boardDirection = boardDirection.opposite();
+                boardPanel.redrawBoard(board);
+                boardDirection = boardDirection.opposite();
+
+            }
+        });
+        showMoves.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!showPosMoves)
+                    showPosMoves = true;
+                else
+                    showPosMoves = false;
+            }
+        });
+        showMoves.setState(true);
+        preferences.add(flipper);
+        preferences.addSeparator();
+        preferences.add(showMoves);
+        return preferences;
+
+    }
+
+    public enum BoardDirection {
+        NORMAL {
+            @Override
+            List<TilePanel> flipper(List<TilePanel> boardTiles) {
+
+                return boardTiles;
+            }
+
+            @Override
+            BoardDirection opposite() {
+                return REVERSED;
+            }
+        },REVERSED {
+            @Override
+            List<TilePanel> flipper (List<TilePanel> boardTiles) {
+                Collections.reverse(boardTiles);
+                return boardTiles;
+            }
+
+            @Override
+            BoardDirection opposite() {
+                return NORMAL;
+            }
+        };
+        abstract List<TilePanel> flipper(List<TilePanel> boardTiles);
+        abstract BoardDirection opposite();
     }
 
     private class BoardPanel extends JPanel
@@ -107,7 +173,7 @@ public class Table {
 
         public void redrawBoard(Board board) {
             removeAll();
-            for (TilePanel tilePanel: boardTiles)
+            for (TilePanel tilePanel: boardDirection.flipper(boardTiles))
             {
                 tilePanel.drawTile(board);
                 add(tilePanel);
@@ -116,16 +182,6 @@ public class Table {
             repaint();
         }
 
-        public void redrawBoardMax(Board board,Figure figure) {
-            removeAll();
-            for (TilePanel tilePanel: boardTiles)
-            {
-                tilePanel.drawTileMax(board,figure);
-                add(tilePanel);
-            }
-            validate();
-            repaint();
-        }
     }
 
     private class TilePanel extends JPanel{
@@ -148,10 +204,11 @@ public class Table {
                         currentTile = null;
                         targetTile = null;
                         movedFigure = null;
+                        boardPanel.redrawBoard(board);
                     }
                     else if (isLeftMouseButton(e)) {
                         if (currentTile == null)
-                        {//TODO подсветка ходов
+                        {
                             currentTile = board.getTile(tileId);
                             movedFigure = currentTile.getFigure();
                             System.out.println("Clicked");
@@ -159,7 +216,7 @@ public class Table {
                             if (movedFigure == null)
                             {
                                 currentTile = null;}
-                            boardPanel.redrawBoardMax(board,movedFigure);
+                            boardPanel.redrawBoard(board);
                         }
                         else {
                             targetTile = board.getTile(tileId);
@@ -209,19 +266,36 @@ public class Table {
             validate();
         }
 
+        public void highLight (Board board)
+        {if(showPosMoves)
+            for (Move move:getFigureMovesOnBoard(board))
+                if(this.tileId == move.getTargetCoordinate())
+                {
+                    try {
+                        final BufferedImage image = ImageIO.read(new File(imagePath  + "pborder" + ".png"));
+                        add(new JLabel(new ImageIcon(image)));
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+        }
+
+        public Collection<Move> getFigureMovesOnBoard (Board board)
+        {
+            if(currentTile != null && movedFigure.getFigureSide() == board.getCurrentPlayer().getSide())
+                return movedFigure.calcMoves(board);
+
+            return Collections.emptyList();
+
+        }
+
 
         public void drawTile(Board board)
         {
             assignTileColor();
             assignTexture(board);
-            validate();
-            repaint();
-        }
-
-        public void drawTileMax(Board board,Figure figure)
-        {
-            assignTileColor();
-            assignTextureMax(board,figure);
+            highLight(board);
             validate();
             repaint();
         }
@@ -238,36 +312,6 @@ public class Table {
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                }
-            }
-        }
-
-        private void assignTextureMax(Board board,Figure figure)
-        {
-            this.removeAll();
-            if(board.getTile(this.tileId).isOccupied())
-            {
-                try {
-                    final BufferedImage image = ImageIO.read(new File(imagePath  + board.getTile(this.tileId).getFigure().getFigureSide().toString().substring(0,1)+
-                            board.getTile(this.tileId).getFigure().toString().toLowerCase() + ".png"));
-                    add(new JLabel(new ImageIcon(image)));
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            else
-            {Collection<Move> moves = figure.calcMoves(board);
-                for (Move move:moves)
-                    if(board.getTile(tileId).gettCoordinate() == move.getTargetCoordinate())
-                {
-                    try {
-                        final BufferedImage image = ImageIO.read(new File(imagePath  + "pborder" + ".png"));
-                        add(new JLabel(new ImageIcon(image)));
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
             }
         }
