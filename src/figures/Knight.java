@@ -19,7 +19,11 @@ public class Knight extends Figure {
     private final static int[] POSSIBLE_MOVES = {-17,-15,-10,-6, 6, 10, 15, 17};
 
     public Knight(int position, FigureSide side) {
-        super(position, side,FigureType.KNIGHT);
+        super(position, side,FigureType.KNIGHT,true);
+    }
+
+    public Knight(int position, FigureSide side,boolean firstMove) {
+        super(position, side,FigureType.KNIGHT,firstMove);
     }
 
     @Override

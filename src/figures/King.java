@@ -15,7 +15,10 @@ public class King extends Figure {
     private final static int[] POSSIBLE_MOVES = {-9, -8, -7, -1, 1, 7, 8, 9};
 
     public King(int position, FigureSide side) {
-        super(position, side,FigureType.KING);
+        super(position, side,FigureType.KING,true);
+    }
+    public King(int position, FigureSide side,boolean firstMove) {
+        super(position, side,FigureType.KING,firstMove);
     }
     //TODO битые поля
     @Override

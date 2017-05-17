@@ -16,7 +16,10 @@ public class Pawn extends Figure {
     private final static int[] POSSIBLE_MOVES = {7,8,9,16};
 
     public Pawn(int position, FigureSide side) {
-        super(position, side,FigureType.PAWN);
+        super(position, side,FigureType.PAWN,true);
+    }
+    public Pawn(int position, FigureSide side,boolean firstMove) {
+        super(position, side,FigureType.PAWN,firstMove);
     }
 
     @Override
@@ -33,7 +36,11 @@ public class Pawn extends Figure {
             }
             if(POSSIBLE_MOVE == 8 && !board.getTile(moveCoordinate).isOccupied())
             {
-                //TODO
+                //TODO замена фигур
+                if ((BoardUtils.SECOND_ROW[this.position] && this.getFigureSide().isWhite())
+                        || (BoardUtils.SEVEN_ROW[this.position] && this.getFigureSide().isBlack()))
+                    passMoves.add(new ReplaceMove(board,this,new Rook(moveCoordinate,this.getFigureSide()),moveCoordinate));
+                else
                 passMoves.add(new MajorMove(board,this,moveCoordinate));
             }
             if(POSSIBLE_MOVE == 16 && this.isFirstMove() &&

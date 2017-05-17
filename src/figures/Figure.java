@@ -12,15 +12,16 @@ public abstract class Figure {
     protected final int position;
     protected final FigureSide side;
     protected boolean firstMove;
+
     private final int cachedHash;
 
-    Figure(int position, FigureSide side,FigureType figureType)
+    Figure(int position, FigureSide side,FigureType figureType,boolean firstMove)
     {
         this.position = position;
         this.side = side;
         this.figureType = figureType;
         //TODO
-        this.firstMove = true;
+        this.firstMove = firstMove;
         this.cachedHash = calcHashCode();
     }
 

@@ -4,6 +4,9 @@ package board;
 import board.Board.Builder;
 import figures.*;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 /* Класс котороый соверщает ход, создавая при этом новую доску и проверяя корректен ли он.
 Основной метод execute();
  */
@@ -13,6 +16,7 @@ public abstract class Move {
     final Board board;
     final Figure movedFigure;
     final int targetCoordinate;
+   // final boolean firstMove;
 
     public static final Move EMPTY_MOVE = new EmptyMove();
 
@@ -20,6 +24,14 @@ public abstract class Move {
         this.board = board;
         this.movedFigure = movedFigure;
         this.targetCoordinate = targetCoordinate;
+      //  this.firstMove = movedFigure.isFirstMove();
+    }
+
+    private Move(Board board, int targetCoordinate) {
+        this.board = board;
+        this.movedFigure = null;
+        this.targetCoordinate = targetCoordinate;
+     //   this.firstMove = false;
     }
 
     @Override
@@ -27,6 +39,7 @@ public abstract class Move {
         int result = 1;
         result = 31 * result + this.targetCoordinate;
         result = 31 * result + this.movedFigure.hashCode();
+        result = 31 * result + this.movedFigure.getFigurePos();
         return result;
     }
 
@@ -43,7 +56,8 @@ public abstract class Move {
         final Move otherMove = (Move) obj;
         return getCurrentCoordinate() == otherMove.getCurrentCoordinate() &&
                 getTargetCoordinate() == otherMove.getTargetCoordinate() &&
-                getMovedFigure().equals(otherMove.getMovedFigure());
+                getMovedFigure().equals(otherMove.getMovedFigure()) &&
+                getCurrentCoordinate() == otherMove.getCurrentCoordinate();
     }
 
     public Figure getMovedFigure()
@@ -109,9 +123,14 @@ public abstract class Move {
         }
 
         @Override
+        public boolean equals(Object obj) {
+            return this == obj || obj instanceof MajorMove && super.equals(obj);
+        }
+        @Override
         public Board execute() {
             return super.execute();
         }
+
     }
 
     public static class AttackMove extends Move
@@ -176,17 +195,41 @@ public abstract class Move {
         }
     }
     //TODO
-    public static final class MinorMove extends Move
+    public static final class ReplaceMove extends Move
     {
+        Figure replacedFigure;
 
-        private MinorMove(Board board, Figure movedFigure, int targetCoordinate) {
+        public ReplaceMove(Board board, Figure movedFigure, Figure replacedFigure, int targetCoordinate) {
             super(board, movedFigure, targetCoordinate);
+            this.replacedFigure = replacedFigure;
+        }
+
+        public Board execute() {
+            final Builder builder = new Builder();
+
+            for(Figure figure : this.board.getCurrentPlayer().getAliveFigures())
+            {
+                if(!this.movedFigure.equals(figure))
+                {
+                    builder.setFigure(figure);
+                }
+            }
+            for(Figure figure : this.board.getCurrentPlayer().getOpponent().getAliveFigures())
+            {
+                builder.setFigure(figure);
+            }
+            //Заменяем фигуру.
+
+            builder.setFigure(this.replacedFigure.moveFigure(this));
+            builder.setMoveMaker(this.board.getCurrentPlayer().getOpponent().getSide());
+            replacedFigure.setFirstMove(false);
+            return builder.build();
         }
     }
     //TODO
-    public static class MinorAttackMove extends AttackMove
+    public static class ReplaceAttackMove extends AttackMove
     {
-        public MinorAttackMove(Board board,
+        public ReplaceAttackMove(Board board,
                                Figure movedFigure,
                                int targetCoordinate,
                                Figure atkdFigure) {
@@ -194,7 +237,7 @@ public abstract class Move {
         }
     }
     //TODO
-    public static final class OnPassAttackMove extends MinorAttackMove
+    public static final class OnPassAttackMove extends AttackMove
     {
         public OnPassAttackMove (Board board,
                                 Figure movedFigure,

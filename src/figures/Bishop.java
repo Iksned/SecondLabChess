@@ -17,7 +17,10 @@ public class Bishop extends Figure {
     private final static int[] POSSIBLE_MOVES_VECTORS = {-9,-7,7,9};
 
     public Bishop(int position, FigureSide side) {
-        super(position, side,FigureType.BISHOP);
+        super(position, side,FigureType.BISHOP,true);
+    }
+    public Bishop(int position, FigureSide side,boolean firstMove) {
+        super(position, side,FigureType.BISHOP,firstMove);
     }
 
     @Override

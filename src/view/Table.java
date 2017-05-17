@@ -10,6 +10,7 @@ import player.MoveTrasition;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -59,6 +60,9 @@ public class Table {
         this.gameFrame.setSize(FRAME_DIMENSION);
         this.boardPanel = new BoardPanel();
         this.gameFrame.add(this.boardPanel, BorderLayout.CENTER);
+        this.gameFrame.add(new LeftPanel(),BorderLayout.WEST);
+        this.gameFrame.add(new UpperPanel(),BorderLayout.NORTH);
+
         this.gameFrame.setVisible(true);
         this.gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
@@ -220,16 +224,17 @@ public class Table {
                         }
                         else {
                             targetTile = board.getTile(tileId);
-                            final Move move = MoveFactory.createMove(board, currentTile.gettCoordinate(),targetTile.gettCoordinate());
-                            final MoveTrasition trasition = board.getCurrentPlayer().makeMove(move);
-                            if (trasition.getMoveStatus().isDone())
-                            {
-                                board = trasition.getBoard();
-                            }//TODO логирование
-                            currentTile = null;
-                            targetTile = null;
-                            movedFigure = null;
-                            boardPanel.redrawBoard(board);
+                            if (targetTile != currentTile) {
+                                final Move move = MoveFactory.createMove(board, currentTile.gettCoordinate(), targetTile.gettCoordinate());
+                                final MoveTrasition trasition = board.getCurrentPlayer().makeMove(move);
+                                if (trasition.getMoveStatus().isDone()) {
+                                    board = trasition.getBoard();
+                                }//TODO логирование
+                                currentTile = null;
+                                targetTile = null;
+                                movedFigure = null;
+                                boardPanel.redrawBoard(board);
+                            }
 
                         }
                         //TODO посмотреть преимущества
@@ -272,7 +277,7 @@ public class Table {
                 if(this.tileId == move.getTargetCoordinate())
                 {
                     try {
-                        final BufferedImage image = ImageIO.read(new File(imagePath  + "pborder" + ".png"));
+                        final BufferedImage image = ImageIO.read(new File(imagePath  + "pdot" + ".png"));
                         add(new JLabel(new ImageIcon(image)));
 
                     } catch (IOException e) {

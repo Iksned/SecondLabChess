@@ -14,7 +14,10 @@ public class Queen extends Figure {
     private final static int[] POSSIBLE_MOVES_VECTORS = {-9,-8,-7,-1,1,7,8,9};
 
     public Queen(int position, FigureSide side) {
-        super(position, side,FigureType.QUEEN);
+        super(position, side,FigureType.QUEEN,true);
+    }
+    public Queen(int position, FigureSide side,boolean firstMove) {
+        super(position, side,FigureType.QUEEN,firstMove);
     }
 
     @Override

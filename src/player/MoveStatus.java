@@ -13,7 +13,8 @@ public enum MoveStatus {
         public boolean isDone() {
             return false;
         }
-    }, LEAVES_PLAYER_IN_CHECK {
+    },
+    LEAVES_PLAYER_IN_CHECK {
         @Override
         public boolean isDone() {
             return false;

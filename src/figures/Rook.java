@@ -15,7 +15,11 @@ public class Rook extends Figure{
     private final static int[] POSSIBLE_MOVES_VECTORS = {-8,-1,1,8};
 
     public Rook(int position, FigureSide side) {
-        super(position, side,FigureType.ROOK);
+        super(position, side,FigureType.ROOK,true);
+    }
+
+    public Rook(int position, FigureSide side,boolean firstMove) {
+        super(position, side,FigureType.ROOK,firstMove);
     }
 
     @Override
