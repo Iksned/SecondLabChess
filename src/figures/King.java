@@ -56,7 +56,7 @@ public class King extends Figure {
 
     @Override
     public King moveFigure(Move move) {
-        return new King(move.getTargetCoordinate(),move.getMovedFigure().getFigureSide());
+        return new King(move.getTargetCoordinate(),move.getMovedFigure().getFigureSide(),false);
     }
 
     public String toString()

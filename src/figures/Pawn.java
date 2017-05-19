@@ -4,6 +4,7 @@ import board.Board;
 import board.BoardUtils;
 import board.Move;
 import player.FigureSide;
+import view.ReplaceFrame;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,11 +38,7 @@ public class Pawn extends Figure {
             if(POSSIBLE_MOVE == 8 && !board.getTile(moveCoordinate).isOccupied())
             {
                 //TODO замена фигур
-                if ((BoardUtils.SECOND_ROW[this.position] && this.getFigureSide().isWhite())
-                        || (BoardUtils.SEVEN_ROW[this.position] && this.getFigureSide().isBlack()))
-                    passMoves.add(new ReplaceMove(board,this,new Rook(moveCoordinate,this.getFigureSide()),moveCoordinate));
-                else
-                passMoves.add(new MajorMove(board,this,moveCoordinate));
+                passMoves.add(new MinorMove(board,this,moveCoordinate));
             }
             if(POSSIBLE_MOVE == 16 && this.isFirstMove() &&
                     ((BoardUtils.SECOND_ROW[this.position] && this.getFigureSide().isBlack())
@@ -63,7 +60,7 @@ public class Pawn extends Figure {
                     if (targetFigure.getFigureSide() != this.side)
                     {
                         //TODO
-                        passMoves.add(new AttackMove(board,this,moveCoordinate,targetFigure));
+                        passMoves.add(new MinorAttackMove(board,this,moveCoordinate,targetFigure));
                     }
                 }
             }
@@ -74,7 +71,7 @@ public class Pawn extends Figure {
                     final Figure targetFigure = board.getTile(moveCoordinate).getFigure();
                     if (targetFigure.getFigureSide() != this.side) {
                         //TODO
-                        passMoves.add(new AttackMove(board, this, moveCoordinate, targetFigure));
+                        passMoves.add(new MinorAttackMove(board, this, moveCoordinate, targetFigure));
                 }
             }
             }
@@ -85,7 +82,7 @@ public class Pawn extends Figure {
 
     @Override
     public Pawn moveFigure(Move move) {
-        return new Pawn(move.getTargetCoordinate(),move.getMovedFigure().getFigureSide());
+        return new Pawn(move.getTargetCoordinate(),move.getMovedFigure().getFigureSide(),false);
     }
 
     public String toString()

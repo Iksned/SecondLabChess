@@ -3,7 +3,10 @@ package board;
 
 import board.Board.Builder;
 import figures.*;
+import player.FigureSide;
+import view.ReplaceFrame;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -195,13 +198,23 @@ public abstract class Move {
         }
     }
     //TODO
-    public static final class ReplaceMove extends Move
+    public static final class MinorMove extends Move
     {
-        Figure replacedFigure;
+       public static Figure replacedFigure = new Pawn(2, FigureSide.BLACK);
 
-        public ReplaceMove(Board board, Figure movedFigure, Figure replacedFigure, int targetCoordinate) {
+
+        public static void setReplacedFigure(Figure replacedFigure1) {
+            replacedFigure = replacedFigure1;
+        }
+
+        public MinorMove(Board board, Figure movedFigure, int targetCoordinate) {
             super(board, movedFigure, targetCoordinate);
-            this.replacedFigure = replacedFigure;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            return this == obj || obj instanceof MinorMove && super.equals(obj);
         }
 
         public Board execute() {
@@ -218,32 +231,74 @@ public abstract class Move {
             {
                 builder.setFigure(figure);
             }
-            //Заменяем фигуру.
+            if (!BoardUtils.EIGHT_ROW[this.targetCoordinate] && !BoardUtils.FIRST_ROW[this.targetCoordinate])
+            {
+                builder.setFigure(this.movedFigure.moveFigure(this));
+                movedFigure.setFirstMove(false);
+            } else {
 
-            builder.setFigure(this.replacedFigure.moveFigure(this));
+                builder.setFigure(replacedFigure.moveFigure(this));
+                replacedFigure.setFirstMove(false);
+            }
+
             builder.setMoveMaker(this.board.getCurrentPlayer().getOpponent().getSide());
-            replacedFigure.setFirstMove(false);
+
             return builder.build();
         }
     }
     //TODO
-    public static class ReplaceAttackMove extends AttackMove
+    public static class MinorAttackMove extends AttackMove
     {
-        public ReplaceAttackMove(Board board,
+        public MinorAttackMove(Board board,
                                Figure movedFigure,
                                int targetCoordinate,
                                Figure atkdFigure) {
             super(board, movedFigure, targetCoordinate, atkdFigure);
         }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            return this == obj || obj instanceof MinorAttackMove && super.equals(obj);
+        }
     }
     //TODO
-    public static final class OnPassAttackMove extends AttackMove
+    public static final class OnPassAttackMove extends MinorAttackMove
     {
         public OnPassAttackMove (Board board,
                                 Figure movedFigure,
                                 int targetCoordinate,
                                 Figure atkdFigure) {
             super(board, movedFigure, targetCoordinate, atkdFigure);
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            return this == obj || obj instanceof OnPassAttackMove && super.equals(obj);
+        }
+
+        @Override
+        public Board execute() {
+            final Builder builder = new Builder();
+            for(Figure figure:this.board.getCurrentPlayer().getAliveFigures())
+            {
+                if(!this.movedFigure.equals(figure))
+                {
+                    if(!this.getAttackedFigure().equals(figure))
+                    builder.setFigure(figure);
+                }
+
+            }
+
+            for(Figure figure:this.board.getCurrentPlayer().getOpponent().getAliveFigures())
+            {
+                builder.setFigure(figure);
+            }
+            builder.setFigure(this.movedFigure.moveFigure(this));
+            builder.setMoveMaker(this.board.getCurrentPlayer().getOpponent().getSide());
+            return builder.build();
+
         }
     }
 
@@ -373,6 +428,7 @@ public abstract class Move {
         {
             throw new RuntimeException("Empty move");
         }
+
     }
 
     public static class MoveFactory

@@ -1,11 +1,14 @@
 package view;
 
+import addons.Support;
 import board.Board;
 import board.BoardUtils;
 import board.Move;
 import board.Move.MoveFactory;
 import board.Tile;
 import figures.Figure;
+import figures.Rook;
+import player.FigureSide;
 import player.MoveTrasition;
 
 import javax.imageio.ImageIO;
@@ -19,11 +22,12 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.nio.file.DirectoryNotEmptyException;
+import java.util.*;
 import java.util.List;
 
+import static addons.Support.makeListFromIterable;
+import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import static javax.swing.SwingUtilities.isLeftMouseButton;
 import static javax.swing.SwingUtilities.isRightMouseButton;
 
@@ -48,6 +52,7 @@ public class Table {
 
     private final static Dimension FRAME_DIMENSION = new Dimension(600,600);
 
+
     public Table()
     {
         this.gameFrame = new JFrame("SecondLabChess");
@@ -64,8 +69,11 @@ public class Table {
         this.gameFrame.add(new UpperPanel(),BorderLayout.NORTH);
 
         this.gameFrame.setVisible(true);
-        this.gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.gameFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+
     }
+
+
 
     private JMenuBar fillMenuBar() {
         final JMenuBar tableMenuBar = new JMenuBar();
@@ -188,6 +196,8 @@ public class Table {
 
     }
 
+
+
     private class TilePanel extends JPanel{
 
         private final int tileId;
@@ -220,6 +230,7 @@ public class Table {
                             if (movedFigure == null)
                             {
                                 currentTile = null;}
+
                             boardPanel.redrawBoard(board);
                         }
                         else {
@@ -288,6 +299,8 @@ public class Table {
 
         public Collection<Move> getFigureMovesOnBoard (Board board)
         {
+            if (currentTile != null && movedFigure.getFigureSide() == board.getCurrentPlayer().getSide() && board.getCurrentPlayer().getPlayerKing() == movedFigure)
+                return makeListFromIterable(Support.concat(movedFigure.calcMoves(board),board.getCurrentPlayer().getKingMoves()));
             if(currentTile != null && movedFigure.getFigureSide() == board.getCurrentPlayer().getSide())
                 return movedFigure.calcMoves(board);
 

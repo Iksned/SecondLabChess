@@ -17,7 +17,6 @@ public class LeftPanel extends JPanel {
 
     public LeftPanel() {
         super(new GridLayout(8,1));
-        setBorder(new EtchedBorder(EtchedBorder.RAISED));
         setPreferredSize(LEFT_PANE_DIM);
         for (int i = 8;i>0;i--)
         {

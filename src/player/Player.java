@@ -17,6 +17,7 @@ public abstract class Player {
     protected final King pKing;
     protected final Collection<Move> passMoves;
     private  final boolean isInCheck;
+    private final Collection<Move> kingMoves;
 
     Player(Board board,Collection<Move> passMoves,
                         Collection<Move> opponentMoves)
@@ -25,6 +26,7 @@ public abstract class Player {
         this.pKing = setKing();
         this.passMoves = makeListFromIterable(Support.concat(passMoves,calcKingCastles(passMoves,opponentMoves)));
         this.isInCheck = !Player.calcAttackOnTile(this.pKing.getFigurePos(),opponentMoves).isEmpty();
+        this.kingMoves = calcKingCastles(passMoves,opponentMoves);
     }
 
     protected static Collection<Move> calcAttackOnTile(int figurePos, Collection<Move> opponentMoves) {
@@ -46,6 +48,10 @@ public abstract class Player {
             }
         }
         throw new RuntimeException("No King");
+    }
+
+    public Collection<Move> getKingMoves() {
+        return kingMoves;
     }
 
     public boolean isMoveLegal(Move move)

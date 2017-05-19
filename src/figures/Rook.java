@@ -61,7 +61,7 @@ public class Rook extends Figure{
 
     @Override
     public Rook moveFigure(Move move) {
-        return new Rook(move.getTargetCoordinate(),move.getMovedFigure().getFigureSide());
+        return new Rook(move.getTargetCoordinate(),move.getMovedFigure().getFigureSide(),false);
     }
 
     public String toString()
