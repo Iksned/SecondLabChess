@@ -6,6 +6,7 @@ import board.Move;
 import board.Tile;
 import player.FigureSide;
 import view.ReplaceFrame;
+import view.Replacer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,6 +15,7 @@ import java.util.List;
 import static board.Move.*;
 
 public class Pawn extends Figure {
+    private Figure replacedFigure;
 
     private final static int[] POSSIBLE_MOVES = {7,8,9,16};
 
@@ -116,7 +118,18 @@ public class Pawn extends Figure {
         return FigureType.PAWN.toString();
     }
 
+    public void setReplacedFigure(Figure replacedFigure) {
+        this.replacedFigure = replacedFigure;
+    }
+
+    public Figure getReplacedFigure() {
+        return replacedFigure;
+    }
+
     public Figure getUpgradedFigure() {
-        return new Queen(this.position,this.side,false);
+        return replacedFigure;
+        //return new Queen(this.position,this.side,false);
     }
 }
+
+

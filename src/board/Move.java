@@ -299,7 +299,6 @@ public abstract class Move {
         public Board execute() {
             final Board wrappedBoard = this.wrappedMove.execute();
             final Builder builder = new Builder();
-
             for(Figure figure:wrappedBoard.getCurrentPlayer().getAliveFigures()) {
                 if (!this.movedFigure.equals(figure)) {
                     builder.setFigure(figure);

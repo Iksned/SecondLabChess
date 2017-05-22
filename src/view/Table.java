@@ -7,6 +7,7 @@ import board.Move;
 import board.Move.MoveFactory;
 import board.Tile;
 import figures.Figure;
+import figures.Pawn;
 import figures.Rook;
 import player.FigureSide;
 import player.MoveTrasition;
@@ -234,15 +235,37 @@ public class Table {
                         else {
                             targetTile = board.getTile(tileId);
                             if (targetTile != currentTile) {
-                                final Move move = MoveFactory.createMove(board, currentTile.gettCoordinate(), targetTile.gettCoordinate());
-                                final MoveTrasition trasition = board.getCurrentPlayer().makeMove(move);
-                                if (trasition.getMoveStatus().isDone()) {
-                                    board = trasition.getBoard();
-                                }//TODO логирование
-                                currentTile = null;
-                                targetTile = null;
-                                movedFigure = null;
-                                boardPanel.redrawBoard(board);
+
+                                if (movedFigure instanceof Pawn && ((BoardUtils.EIGHT_ROW[targetTile.gettCoordinate()] && movedFigure.getFigureSide().isBlack()) ||
+                                        BoardUtils.FIRST_ROW[targetTile.gettCoordinate()] && movedFigure.getFigureSide().isWhite()))
+                                {
+                                    if (((Pawn) movedFigure).getReplacedFigure() == null)
+                                         new ReplaceFrame((Pawn) movedFigure);
+                                    else
+                                    {
+                                        final Move move = MoveFactory.createMove(board, currentTile.gettCoordinate(), targetTile.gettCoordinate());
+                                        final MoveTrasition trasition = board.getCurrentPlayer().makeMove(move);
+                                        if (trasition.getMoveStatus().isDone()) {
+                                            board = trasition.getBoard();
+                                        }//TODO логирование
+                                        currentTile = null;
+                                        targetTile = null;
+                                        movedFigure = null;
+                                        boardPanel.redrawBoard(board);
+                                    }
+                                }
+                                else {
+
+                                    final Move move = MoveFactory.createMove(board, currentTile.gettCoordinate(), targetTile.gettCoordinate());
+                                    final MoveTrasition trasition = board.getCurrentPlayer().makeMove(move);
+                                    if (trasition.getMoveStatus().isDone()) {
+                                        board = trasition.getBoard();
+                                    }//TODO логирование
+                                    currentTile = null;
+                                    targetTile = null;
+                                    movedFigure = null;
+                                    boardPanel.redrawBoard(board);
+                                }
                             }
 
                         }
