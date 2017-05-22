@@ -17,6 +17,8 @@ public class Board {
     private final Collection<Figure> whiteFigures;
     private final Collection<Figure> blackFigures;
 
+    private final Pawn onPassPawn;
+
     private final WhitePlayer whitePlayer;
     private final BlackPlayer blackPlayer;
     private final Player currentPlayer;
@@ -26,6 +28,7 @@ public class Board {
         this.chessboard = createChessBoard(builder);
         this.whiteFigures = calcActiveFigures(this.chessboard,FigureSide.WHITE);
         this.blackFigures = calcActiveFigures(this.chessboard,FigureSide.BLACK);
+        this.onPassPawn = builder.onPassPawn;
 
         final Collection<Move> whiteMovesSum = calculateMoves(this.whiteFigures);
         final Collection<Move> blackMovesSum = calculateMoves(this.blackFigures);
@@ -81,6 +84,10 @@ public class Board {
     public Tile getTile(int tCoordinate)
     {
         return chessboard.get(tCoordinate);
+    }
+
+    public Pawn getOnPassPawn() {
+        return onPassPawn;
     }
 
     private static List<Tile> createChessBoard(Builder builder)

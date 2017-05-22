@@ -67,9 +67,10 @@ public class Table {
         this.gameFrame.add(this.boardPanel, BorderLayout.CENTER);
         this.gameFrame.add(new LeftPanel(),BorderLayout.WEST);
         this.gameFrame.add(new UpperPanel(),BorderLayout.NORTH);
+        this.gameFrame.setResizable(false);
 
         this.gameFrame.setVisible(true);
-        this.gameFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        this.gameFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
     }
 
@@ -123,10 +124,7 @@ public class Table {
         showMoves.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!showPosMoves)
-                    showPosMoves = true;
-                else
-                    showPosMoves = false;
+                showPosMoves = !showPosMoves;
             }
         });
         showMoves.setState(true);

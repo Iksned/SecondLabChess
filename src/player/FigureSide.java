@@ -1,5 +1,7 @@
 package player;
 
+import board.BoardUtils;
+
 public enum FigureSide {
     WHITE {
         @Override
@@ -15,6 +17,11 @@ public enum FigureSide {
         @Override
         public boolean isBlack() {
             return false;
+        }
+
+        @Override
+        public boolean isUpgradeTile(int pos) {
+            return BoardUtils.FIRST_ROW[pos];
         }
 
         @Override
@@ -39,6 +46,11 @@ public enum FigureSide {
         }
 
         @Override
+        public boolean isUpgradeTile(int pos) {
+            return BoardUtils.EIGHT_ROW[pos];
+        }
+
+        @Override
         public Player choosePlayer(WhitePlayer whitePlayer, BlackPlayer blackPlayer) {
             return blackPlayer;
         }
@@ -47,6 +59,8 @@ public enum FigureSide {
    public abstract int getDirection();
    public abstract boolean isWhite();
    public abstract boolean isBlack();
+
+   public abstract boolean isUpgradeTile(int pos);
 
     public abstract Player choosePlayer(WhitePlayer whitePlayer, BlackPlayer blackPlayer);
 }

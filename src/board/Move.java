@@ -19,7 +19,6 @@ public abstract class Move {
     final Board board;
     final Figure movedFigure;
     final int targetCoordinate;
-   // final boolean firstMove;
 
     public static final Move EMPTY_MOVE = new EmptyMove();
 
@@ -27,14 +26,13 @@ public abstract class Move {
         this.board = board;
         this.movedFigure = movedFigure;
         this.targetCoordinate = targetCoordinate;
-      //  this.firstMove = movedFigure.isFirstMove();
+
     }
 
     private Move(Board board, int targetCoordinate) {
         this.board = board;
         this.movedFigure = null;
         this.targetCoordinate = targetCoordinate;
-     //   this.firstMove = false;
     }
 
     @Override
@@ -112,7 +110,6 @@ public abstract class Move {
         //Двигаем фигуру после выставления доски.
         builder.setFigure(this.movedFigure.moveFigure(this));
         builder.setMoveMaker(this.board.getCurrentPlayer().getOpponent().getSide());
-        movedFigure.setFirstMove(false);
         return builder.build();
     }
 
@@ -167,7 +164,6 @@ public abstract class Move {
             //Двигаем фигуру после выставления доски.
             builder.setFigure(this.movedFigure.moveFigure(this));
             builder.setMoveMaker(this.board.getCurrentPlayer().getOpponent().getSide());
-            movedFigure.setFirstMove(false);
             return builder.build();
         }
 
@@ -200,13 +196,6 @@ public abstract class Move {
     //TODO
     public static final class MinorMove extends Move
     {
-       public static Figure replacedFigure = new Pawn(2, FigureSide.BLACK);
-
-
-        public static void setReplacedFigure(Figure replacedFigure1) {
-            replacedFigure = replacedFigure1;
-        }
-
         public MinorMove(Board board, Figure movedFigure, int targetCoordinate) {
             super(board, movedFigure, targetCoordinate);
         }
@@ -234,15 +223,8 @@ public abstract class Move {
             if (!BoardUtils.EIGHT_ROW[this.targetCoordinate] && !BoardUtils.FIRST_ROW[this.targetCoordinate])
             {
                 builder.setFigure(this.movedFigure.moveFigure(this));
-                movedFigure.setFirstMove(false);
-            } else {
-
-                builder.setFigure(replacedFigure.moveFigure(this));
-                replacedFigure.setFirstMove(false);
             }
-
             builder.setMoveMaker(this.board.getCurrentPlayer().getOpponent().getSide());
-
             return builder.build();
         }
     }
@@ -285,7 +267,6 @@ public abstract class Move {
             {
                 if(!this.movedFigure.equals(figure))
                 {
-                    if(!this.getAttackedFigure().equals(figure))
                     builder.setFigure(figure);
                 }
 
@@ -293,12 +274,60 @@ public abstract class Move {
 
             for(Figure figure:this.board.getCurrentPlayer().getOpponent().getAliveFigures())
             {
+                if(!this.getAttackedFigure().equals(figure))
                 builder.setFigure(figure);
             }
             builder.setFigure(this.movedFigure.moveFigure(this));
             builder.setMoveMaker(this.board.getCurrentPlayer().getOpponent().getSide());
             return builder.build();
 
+        }
+    }
+
+    public static class ReplaceMove extends Move
+    {
+        final Move wrappedMove;
+        final Pawn upgradedPawn;
+
+        public ReplaceMove(Move wrappedMove) {
+            super(wrappedMove.board,wrappedMove.getMovedFigure(),wrappedMove.getTargetCoordinate());
+            this.wrappedMove = wrappedMove;
+            this.upgradedPawn = (Pawn) wrappedMove.getMovedFigure();
+        }
+
+        @Override
+        public Board execute() {
+            final Board wrappedBoard = this.wrappedMove.execute();
+            final Builder builder = new Builder();
+
+            for(Figure figure:wrappedBoard.getCurrentPlayer().getAliveFigures()) {
+                if (!this.movedFigure.equals(figure)) {
+                    builder.setFigure(figure);
+                }
+            }
+            for(Figure figure:wrappedBoard.getCurrentPlayer().getOpponent().getAliveFigures()) {
+                    builder.setFigure(figure);
+            }
+            builder.setFigure(this.upgradedPawn.getUpgradedFigure().moveFigure(this));
+            builder.setMoveMaker(wrappedBoard.getCurrentPlayer().getSide());
+            return builder.build();
+
+
+            }
+
+        @Override
+        public boolean isAttack() {
+            return this.wrappedMove.isAttack();
+        }
+
+        @Override
+        public Figure getAttackedFigure() {
+            return this.wrappedMove.getAttackedFigure();
+        }
+
+        @Override
+        public Figure getMovedFigure() {
+            return this.wrappedMove.getMovedFigure();
         }
     }
 
@@ -327,7 +356,6 @@ public abstract class Move {
             builder.setFigure(movedPawn);
             builder.setOnPassPawn(movedPawn);
             builder.setMoveMaker(this.board.getCurrentPlayer().getOpponent().getSide());
-            movedFigure.setFirstMove(false);
             return builder.build();
         }
     }
