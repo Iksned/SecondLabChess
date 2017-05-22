@@ -236,23 +236,11 @@ public class Table {
                             targetTile = board.getTile(tileId);
                             if (targetTile != currentTile) {
 
-                                if (movedFigure instanceof Pawn && ((BoardUtils.EIGHT_ROW[targetTile.gettCoordinate()] && movedFigure.getFigureSide().isBlack()) ||
-                                        BoardUtils.FIRST_ROW[targetTile.gettCoordinate()] && movedFigure.getFigureSide().isWhite()))
-                                {
-                                    if (((Pawn) movedFigure).getReplacedFigure() == null)
+                                if (movedFigure instanceof Pawn &&
+                                   ((Pawn) movedFigure).getReplacedFigure() == null &&
+                                   ((BoardUtils.EIGHT_ROW[targetTile.gettCoordinate()] && movedFigure.getFigureSide().isBlack()) && BoardUtils.SEVEN_ROW[currentTile.gettCoordinate()] ||
+                                     BoardUtils.FIRST_ROW[targetTile.gettCoordinate()] && movedFigure.getFigureSide().isWhite()) && BoardUtils.SECOND_ROW[currentTile.gettCoordinate()]) {
                                          new ReplaceFrame((Pawn) movedFigure);
-                                    else
-                                    {
-                                        final Move move = MoveFactory.createMove(board, currentTile.gettCoordinate(), targetTile.gettCoordinate());
-                                        final MoveTrasition trasition = board.getCurrentPlayer().makeMove(move);
-                                        if (trasition.getMoveStatus().isDone()) {
-                                            board = trasition.getBoard();
-                                        }//TODO логирование
-                                        currentTile = null;
-                                        targetTile = null;
-                                        movedFigure = null;
-                                        boardPanel.redrawBoard(board);
-                                    }
                                 }
                                 else {
 
