@@ -63,8 +63,7 @@ class Chesser extends Thread {
                     String opp = (String) objIn.readObject();
                     for (ChessPlayer player:ChessServer.getPlayers())
                     {
-                        if (player.getLogin().equals(opp))
-                        {
+                        if (player.getLogin().equals(opp)) {
                            opponent = player;
                         }
                     }
