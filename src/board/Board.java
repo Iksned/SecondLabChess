@@ -9,9 +9,10 @@ import player.FigureSide;
 import player.Player;
 import player.WhitePlayer;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Board {
+public class Board implements Serializable{
 
     private final List<Tile> chessboard;
     private final Collection<Figure> whiteFigures;

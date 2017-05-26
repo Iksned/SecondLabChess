@@ -4,9 +4,10 @@ import board.Board;
 import board.Move;
 import player.FigureSide;
 
+import java.io.Serializable;
 import java.util.Collection;
 
-public abstract class Figure {
+public abstract class Figure implements Serializable{
 
     protected final FigureType figureType;
     protected final int position;

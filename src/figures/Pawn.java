@@ -5,8 +5,8 @@ import board.BoardUtils;
 import board.Move;
 import board.Tile;
 import player.FigureSide;
-import view.ReplaceFrame;
-import view.Replacer;
+
+
 
 import java.util.ArrayList;
 import java.util.Collection;

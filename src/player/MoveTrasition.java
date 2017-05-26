@@ -3,7 +3,9 @@ package player;
 import board.Board;
 import board.Move;
 
-public class MoveTrasition {
+import java.io.Serializable;
+
+public class MoveTrasition implements Serializable {
 
     private final Board transitBoard;
     private final Move move;

@@ -7,6 +7,7 @@ import player.FigureSide;
 import view.ReplaceFrame;
 
 import javax.swing.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -14,7 +15,7 @@ import java.util.Objects;
 Основной метод execute();
  */
 
-public abstract class Move {
+public abstract class Move implements Serializable{
 
     final Board board;
     final Figure movedFigure;

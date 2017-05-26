@@ -6,13 +6,14 @@ import board.Move;
 import figures.Figure;
 import figures.King;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static addons.Support.makeListFromIterable;
 
-public abstract class Player {
+public abstract class Player implements Serializable{
     protected final Board board;
     protected final King pKing;
     protected final Collection<Move> passMoves;

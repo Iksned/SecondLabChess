@@ -2,11 +2,12 @@ package board;
 
 import figures.Figure;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class Tile {
+public abstract class Tile implements Serializable{
 
     protected final int tCoordinate;
 

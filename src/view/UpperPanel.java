@@ -4,7 +4,6 @@ import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 public class UpperPanel extends JPanel {
 
@@ -15,18 +14,18 @@ public class UpperPanel extends JPanel {
     public UpperPanel() {
         super(new BorderLayout());
         JPanel cornerAdd = new JPanel();
-        cornerAdd.setPreferredSize(new Dimension(new Dimension(40,40)));
+        cornerAdd.setPreferredSize(new Dimension(new Dimension(40, 40)));
         cornerAdd.setBackground(Color.GRAY);
 
-        this.add(cornerAdd,BorderLayout.WEST);
-        this.add(new UpperAdd(),BorderLayout.CENTER);
+        this.add(cornerAdd, BorderLayout.WEST);
+        this.add(new UpperAdd(), BorderLayout.CENTER);
         repaint();
         validate();
     }
 
-    private class UpperAdd extends JPanel
-    {
-        List<String> lettrs = new ArrayList<>(Arrays.asList("a", "b", "c","d","e","f","g","h"));
+    private class UpperAdd extends JPanel {
+        java.util.List<String> lettrs = new ArrayList<>(Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h"));
+
         public UpperAdd() {
             super(new GridLayout(1, 8));
 
@@ -38,6 +37,7 @@ public class UpperPanel extends JPanel {
             validate();
         }
     }
+
     private class Letters extends JPanel {
         public Letters(String text) {
             super(new GridBagLayout());

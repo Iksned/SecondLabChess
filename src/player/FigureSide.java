@@ -2,7 +2,9 @@ package player;
 
 import board.BoardUtils;
 
-public enum FigureSide {
+import java.io.Serializable;
+
+public enum FigureSide implements Serializable{
     WHITE {
         @Override
       public int getDirection() {
