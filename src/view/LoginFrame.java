@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.*;
 
 public class LoginFrame extends JFrame{
@@ -25,6 +27,7 @@ public class LoginFrame extends JFrame{
         this.objOut = out1;
         this.objIn = in1;
         this.table = mainTable;
+        this.addWindowListener(initWinListener());
         mainpan.setLayout(new BorderLayout());
         this.fillPanel(mainpan);
         this.add(mainpan);
@@ -49,7 +52,6 @@ public class LoginFrame extends JFrame{
                 loggin(textField);
             }
         });
-        //TODO clean
         textField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -73,16 +75,47 @@ public class LoginFrame extends JFrame{
             String in1 = (String) objIn.readObject();
             System.out.println(in1);
             if (in1.equals("Accept")) {
-                table.invokeOpponentsFrame();
+                table.invokeOpponentsFrame(login);
                 setVisible(false);
             }
             else {
                 textField.setText("");
             }
-        } catch (IOException e1) {
+        } catch (IOException | ClassNotFoundException e1) {
             e1.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
+    }
+
+    private WindowListener initWinListener() {
+        return new WindowListener() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+            }
+            @Override
+            public void windowClosing(WindowEvent e) {
+                try {
+                    objOut.writeObject("Reset");
+                    table.closeConnection();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                setVisible(false);
+            }
+            @Override
+            public void windowClosed(WindowEvent e) {
+            }
+            @Override
+            public void windowIconified(WindowEvent e) {
+            }
+            @Override
+            public void windowDeiconified(WindowEvent e) {
+            }
+            @Override
+            public void windowActivated(WindowEvent e) {
+            }
+            @Override
+            public void windowDeactivated(WindowEvent e) {
+            }
+        };
     }
 }

@@ -18,7 +18,7 @@ public class ChessParty {
     public void addSecondPlayer(Chesser player2) {
         this.playerThread2 = player2;
         player2.getBoard().getCurrentPlayer().getSide();
-        full = true;
+        this.full = true;
     }
 
     public Chesser getPlayerThread2() {

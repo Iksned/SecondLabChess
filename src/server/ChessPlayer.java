@@ -3,18 +3,23 @@ package server;
 import board.Board;
 import player.FigureSide;
 
-public class ChessPlayer {
+import java.io.Serializable;
+
+public class ChessPlayer implements Serializable{
     private String login;
     private Double score;
-    private boolean playerState;
+    private boolean visible;
+    private boolean online;
     private FigureSide side;
     private Board board;
 
     public ChessPlayer(String login, Double score) {
         this.login = login;
         this.score = score;
-        this.playerState = false;
+        this.visible = false;
+        this.online = false;
         this.side = null;
+        this.board = null;
     }
 
     public String getLogin() {
@@ -25,8 +30,8 @@ public class ChessPlayer {
         return score;
     }
 
-    public void setPlayerState(boolean playerState) {
-        this.playerState = playerState;
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 
     public void setSide(FigureSide side) {
@@ -37,7 +42,15 @@ public class ChessPlayer {
         return side;
     }
 
-    public boolean isPlayerState() {
-        return playerState;
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
     }
 }

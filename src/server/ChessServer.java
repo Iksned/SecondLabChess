@@ -1,6 +1,7 @@
 package server;
 
 import board.Board;
+
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// Пока создано 3 проверочных игрока с логинами Player,Player2,Player3
 class Chesser extends Thread {
     private Socket socket;
     private ObjectInputStream objIn;
@@ -30,17 +32,17 @@ class Chesser extends Thread {
 
     public void run() {
         try {
-            while (true) {
+           G: while (true) {
                 while (login.equals("")) {
                     String loginIn = (String) objIn.readObject();
-                    if (loginIn.equals(""))
-                        break;
+                    if (loginIn.equals("Reset"))
+                        break G;
                     for (ChessPlayer player : ChessServer.getPlayers()) {
-                        if (loginIn.equals(player.getLogin())) {
+                        if (loginIn.equals(player.getLogin()) && !player.isOnline()) {
                             login = loginIn;
-                            player.setPlayerState(true);
                             objOut.writeObject("Accept");
                             currentPlayer = player;
+                            currentPlayer.setOnline(true);
                         }
                     }
                     if (login.equals(""))
@@ -51,7 +53,7 @@ class Chesser extends Thread {
                     int counter = 0;
                     for (ChessPlayer player:ChessServer.getPlayers())
                     {
-                        if (player.isPlayerState() && !player.getLogin().equals(login))
+                        if (player.isVisible() && !player.getLogin().equals(login))
                         {
                             opponents[counter] = player.getLogin();
                             counter++;
@@ -61,40 +63,44 @@ class Chesser extends Thread {
                         objOut.writeObject(opponents);
 
                     String opp = (String) objIn.readObject();
-                    for (ChessPlayer player:ChessServer.getPlayers())
-                    {
-                        if (player.getLogin().equals(opp)) {
+                    for (ChessPlayer player:ChessServer.getPlayers()) {
+                        if (player.getLogin().equals(opp))
+                        {
                            opponent = player;
+                           currentPlayer.setVisible(true);
                         }
                     }
-                    if (opp.equals("Wait") || opponent == null)
-                    {
+                    if (opp.equals("Wait") || opponent == null) {
                         waiting = true;
                         opponent = new ChessPlayer("Bot",0.0);
+                        currentPlayer.setVisible(true);
                     }
                 }
                 //TODO победа/поражение
                 if (board == null) {
-                    opponent.getLogin();
                     board = (Board) objIn.readObject();
-                    if (board.getCurrentPlayer().isMate())
-                        break;
-                    if (party == null && opponent.getLogin().equals("Bot"))
-                    {
+                    if (party == null && opponent.getLogin().equals("Bot")) {
                         party = new ChessParty(this);
                         ChessServer.addChessParty(login,party);
                     }
-                    else
-                    {
-                        party = ChessServer.getChessParty(opponent.getLogin());
-                        party.addSecondPlayer(this);
+                    else {
+                        if (!ChessServer.getChessParty(opponent.getLogin()).isFull()) {
+                            party = ChessServer.getChessParty(opponent.getLogin());
+                            party.addSecondPlayer(this);
+                        }
                     }
                 }
-                else
-                {
+                else {
                     board = (Board)objIn.readObject();
-                    party.setOtherBoard(board);
-                    currentPlayer.setPlayerState(false);
+                    if (board.getCurrentPlayer().isMate()) {
+                        party.setOtherBoard(board);
+                        this.opponent = null;
+                        this.party = null;
+                    }
+                    else {
+                        party.setOtherBoard(board);
+                        currentPlayer.setVisible(false);
+                    }
                 }
             }
         }
@@ -104,7 +110,10 @@ class Chesser extends Thread {
             e.printStackTrace();
         }  finally {
             try {
-                currentPlayer.setPlayerState(false);
+                if (currentPlayer != null) {
+                    currentPlayer.setVisible(false);
+                    currentPlayer.setOnline(false);
+                }
                 objIn.close();
                 objOut.close();
                 socket.close();
@@ -144,13 +153,11 @@ public class ChessServer {
    private static List<ChessPlayer> players = new ArrayList<>();
 
 
+
     public static void main(String[] args) throws IOException {
         players.add(new ChessPlayer("Player",140.2));
         players.add(new ChessPlayer("Player2",200.5));
         players.add(new ChessPlayer("Player3",10.3));
-        ChessPlayer oppon = new ChessPlayer("Fake",500.5);
-        oppon.setPlayerState(true);
-       // players.add(oppon);
         System.out.println("Server Started");
         try (ServerSocket s = new ServerSocket(PORT)) {
             while (true) {
@@ -166,17 +173,17 @@ public class ChessServer {
         }
     }
 
-    public static ChessParty getChessParty(String name)
+    static ChessParty getChessParty(String name)
     {
         return parties.get(name);
     }
 
-    public static void addChessParty(String name,ChessParty party)
+    static void addChessParty(String name, ChessParty party)
     {
         parties.put(name,party);
     }
 
-    public static List<ChessPlayer> getPlayers() {
+    static List<ChessPlayer> getPlayers() {
         return players;
     }
 }

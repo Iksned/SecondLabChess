@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -26,6 +28,7 @@ public class OpponentsFrame extends JFrame {
         this.objOut = outputStream;
         this.table = selfTable;
         this.logins = createLogins();
+        this.addWindowListener(initWinListener());
         JPanel mainpan = new JPanel();
         mainpan.setLayout(new BorderLayout());
         this.fillPanel(mainpan);
@@ -42,9 +45,7 @@ public class OpponentsFrame extends JFrame {
         String[] logs = null;
         try {
             logs = (String[])objIn.readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return logs;
@@ -103,6 +104,40 @@ public class OpponentsFrame extends JFrame {
                 }
             }
         });
+    }
+
+    private WindowListener initWinListener() {
+        return new WindowListener() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+            }
+            @Override
+            public void windowClosing(WindowEvent e) {
+                try {
+                    objOut.writeObject("Wait");
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                table.setPlayerSide(FigureSide.WHITE);
+                table.setPreparations();
+                setVisible(false);
+            }
+            @Override
+            public void windowClosed(WindowEvent e) {
+            }
+            @Override
+            public void windowIconified(WindowEvent e) {
+            }
+            @Override
+            public void windowDeiconified(WindowEvent e) {
+            }
+            @Override
+            public void windowActivated(WindowEvent e) {
+            }
+            @Override
+            public void windowDeactivated(WindowEvent e) {
+            }
+        };
     }
 
 }

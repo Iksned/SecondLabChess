@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.List;
 
 import static addons.Support.makeListFromIterable;
+import static javax.swing.SwingConstants.CENTER;
 import static javax.swing.SwingUtilities.isLeftMouseButton;
 import static javax.swing.SwingUtilities.isRightMouseButton;
 
@@ -45,6 +46,8 @@ public class Table {
     private boolean showPosMoves;
     private FigureSide playerSide;
     private Table selfTable;
+    private String title;
+    private String login;
 
     private Socket fromserver = null;
     ObjectInputStream objIn;
@@ -58,7 +61,8 @@ public class Table {
 
     public Table() {
         this.selfTable = this;
-        this.gameFrame = new JFrame("SecondLabChess");
+        this.title = "SecondLabChess";
+        this.gameFrame = new JFrame(title);
         this.gameFrame.setLayout(new BorderLayout());
         final JMenuBar tableMenuBar = fillMenuBar();
         this.board = Board.createDefaultBoard();
@@ -95,34 +99,29 @@ public class Table {
                     try {
                         System.out.println("Connecting to server...");
                         fromserver = new Socket("localhost",4444);
-                       // connect.setLabel("Disconnet");
+                        connect.setLabel("Disconnet");
                     } catch (IOException e1) {
                         System.out.println("Fail to connect");
                     }
-               /*if (connect.getLabel().equals("Disconnect"))
-                    {
-                        try {
-                            objOut.close();
-                            objIn.close();
-                            fromserver.close();
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
-                      fromserver = null;
-                        connect.setLabel("Connect to server");
-                    }*/
+                if (connect.getLabel().equals("Disconnect") && objOut != null) {
+                    closeConnection();
+                }
                 if (fromserver != null)
                     try {
-                    //TODO полноценый коннект
                         objOut = new ObjectOutputStream(fromserver.getOutputStream());
                         objOut.flush();
                         objIn = new ObjectInputStream(fromserver.getInputStream());
+                        board = Board.createDefaultBoard();
+                        boardPanel.redrawBoard(board);
                     new LoginFrame(objOut,objIn,selfTable);
 
                     System.out.println("Connected");
                 }
                 catch (IOException e1) {
-                    e1.printStackTrace();
+                    connect.setLabel("Connect to server");
+                    gameFrame.setTitle(title);
+                    closeConnection();
+                    System.out.println("Disconnected");
                 }
             }
         });
@@ -184,7 +183,6 @@ public class Table {
         preferences.addSeparator();
         preferences.add(chooseSide);
         return preferences;
-
     }
 
     public enum BoardDirection {
@@ -221,8 +219,7 @@ public class Table {
         {
             super(new GridLayout(8,8));
             this.boardTiles = new ArrayList<>();
-            for(int i = 0; i< BoardUtils.NUM_TILES;i++)
-            {
+            for(int i = 0; i< BoardUtils.NUM_TILES;i++) {
                 final TilePanel tilePanel = new TilePanel(this,i);
                 this.boardTiles.add(tilePanel);
                 add(tilePanel);
@@ -233,15 +230,13 @@ public class Table {
 
         public void redrawBoard(Board board) {
             removeAll();
-            for (TilePanel tilePanel: boardDirection.flipper(boardTiles))
-            {
+            for (TilePanel tilePanel: boardDirection.flipper(boardTiles)) {
                 tilePanel.drawTile(board);
                 add(tilePanel);
             }
             validate();
             repaint();
         }
-
     }
 
     private class TilePanel extends JPanel{
@@ -266,7 +261,7 @@ public class Table {
                         movedFigure = null;
                         boardPanel.redrawBoard(board);
                     }
-                    else if (isLeftMouseButton(e) && playerSide == board.getCurrentPlayer().getSide()) {
+                    else if (isLeftMouseButton(e) && (playerSide == board.getCurrentPlayer().getSide() || fromserver == null)) {
                         if (currentTile == null)
                         {
                             currentTile = board.getTile(tileId);
@@ -302,46 +297,46 @@ public class Table {
                                     if (objOut != null && trasition.getMoveStatus().isDone())
                                     try {
                                         objOut.writeObject(board);
-                                        setBoard();
+                                        if (board.getCurrentPlayer().isMate())
+                                        {
+                                            JFrame endFrame = new JFrame("You WIN");
+                                            endFrame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+                                            endFrame.setPreferredSize(new Dimension(200,100));
+                                            endFrame.setBounds(400,600,200,100);
+                                            endFrame.add(new JLabel("You WIN"),CENTER);
+                                            endFrame.validate();
+                                            endFrame.setVisible(true);
+                                        }
+                                        else
+                                           setBoard();
                                     } catch (IOException e1) {
                                         System.out.println("No connection");
                                     }
                                 }
                             }
-
                         }
                     }
-
                 }
                 @Override
                 public void mousePressed(MouseEvent e) {
-
                 }
-
                 @Override
                 public void mouseReleased(MouseEvent e) {
-
                 }
-
                 @Override
                 public void mouseEntered(MouseEvent e) {
-
                 }
-
                 @Override
                 public void mouseExited(MouseEvent e) {
-
                 }
             });
-
             validate();
         }
 
-        public void highLight (Board board)
-        {if(showPosMoves)
+        public void highLight (Board board) {
+            if(showPosMoves)
             for (Move move:getFigureMovesOnBoard(board))
-                if(this.tileId == move.getTargetCoordinate())
-                {
+                if(this.tileId == move.getTargetCoordinate()) {
                     try {
                         final BufferedImage image = ImageIO.read(new File(imagePath  + "pdot" + ".png"));
                         add(new JLabel(new ImageIcon(image)));
@@ -407,27 +402,35 @@ public class Table {
                         if (objIn != null)
                             board = (Board)objIn.readObject();
                         boardPanel.redrawBoard(board);
-                        System.out.println("Stil running");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ClassNotFoundException e) {
+                        if (board.getCurrentPlayer().isMate())                        {
+                            JFrame endFrame = new JFrame("You LOSE");
+                            endFrame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+                            endFrame.setPreferredSize(new Dimension(200,100));
+                            endFrame.setBounds(400,600,200,100);
+                            endFrame.add(new JLabel("You LOSE"),CENTER);
+                            endFrame.validate();
+                            endFrame.setVisible(true);
+                        }
+                    } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
                 }
-
             }
         });
         setThread.start();
     }
 
-    public void invokeOpponentsFrame()
+    public void invokeOpponentsFrame(String login)
     {
+        this.login = login;
+        this.gameFrame.setTitle(title + " - " + login);
         new OpponentsFrame(objIn,objOut,selfTable);
-
     }
 
     public void setPreparations()
     {
+        this.board = Board.createDefaultBoard();
+        boardPanel.redrawBoard(board);
         System.out.println(playerSide);
         if (playerSide == FigureSide.BLACK)
         {
@@ -442,6 +445,21 @@ public class Table {
             e.printStackTrace();
         }
         setBoard();
+    }
+
+    void closeConnection()
+    {
+        if (this.fromserver != null) {
+            try {
+                this.objOut.flush();
+                this.objOut.close();
+                this.objIn.close();
+                this.fromserver.close();
+                this.fromserver = null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void setPlayerSide(FigureSide playerSide) {
