@@ -53,4 +53,8 @@ public class ChessPlayer implements Serializable{
     public void setOnline(boolean online) {
         this.online = online;
     }
+
+    public void setScore(Double score) {
+        this.score = score;
+    }
 }

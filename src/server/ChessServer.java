@@ -76,7 +76,6 @@ class Chesser extends Thread {
                         currentPlayer.setVisible(true);
                     }
                 }
-                //TODO победа/поражение
                 if (board == null) {
                     board = (Board) objIn.readObject();
                     if (party == null && opponent.getLogin().equals("Bot")) {
@@ -91,15 +90,32 @@ class Chesser extends Thread {
                     }
                 }
                 else {
-                    board = (Board)objIn.readObject();
-                    if (board.getCurrentPlayer().isMate()) {
-                        party.setOtherBoard(board);
+                    Object obj = objIn.readObject();
+                    if (obj.equals("Choose"))
+                    {
                         this.opponent = null;
                         this.party = null;
-                    }
-                    else {
-                        party.setOtherBoard(board);
-                        currentPlayer.setVisible(false);
+                        this.board = null;
+                    } else {
+                        if (obj instanceof Board)
+                            board = (Board) obj;
+                        // board = (Board)objIn.readObject();
+                        if (board.getCurrentPlayer().isMate()) {
+                            if (party != null) {
+                                currentPlayer.setScore(currentPlayer.getScore() + opponent.getScore() * 0.2);
+                                opponent.setScore(opponent.getScore() - currentPlayer.getScore() * 0.2);
+                                party.setOtherBoard(board);
+                                party.setPartyNull(this);
+                                ChessServer.removeParty(party.getPartyName());
+                            }
+                            this.opponent = null;
+                            this.party = null;
+                            this.board = null;
+
+                        } else {
+                            party.setOtherBoard(board);
+                            currentPlayer.setVisible(false);
+                        }
                     }
                 }
             }
@@ -129,6 +145,14 @@ class Chesser extends Thread {
              return board;
         else
              return null;
+    }
+
+    public void setParty(ChessParty party) {
+        this.party = party;
+    }
+
+    public ChessPlayer getCurrentPlayer() {
+        return currentPlayer;
     }
 
     public void setBoard(Board board) {
@@ -185,5 +209,10 @@ public class ChessServer {
 
     static List<ChessPlayer> getPlayers() {
         return players;
+    }
+
+    static void removeParty(String login)
+    {
+        parties.remove(login);
     }
 }

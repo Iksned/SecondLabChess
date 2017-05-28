@@ -43,8 +43,14 @@ public class OpponentsFrame extends JFrame {
 
     private String[] createLogins() {
         String[] logs = null;
+        Object object = null;
         try {
-            logs = (String[])objIn.readObject();
+            while (!(object instanceof String[]))
+            {
+                object = objIn.readObject();
+            }
+            logs = (String[])object;
+           // logs = (String[])objIn.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -60,11 +66,8 @@ public class OpponentsFrame extends JFrame {
         scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.setPreferredSize(new Dimension(100, 100));
         add(scroll,BorderLayout.CENTER);
-        JLabel headLabel = new JLabel("Choose opponent");
         JButton okButton = new JButton("Ok");
-        JButton waitButton = new JButton("Wait");
         add(okButton,BorderLayout.SOUTH);
-       // add(waitButton);
         add(new JLabel("Choose your opponent"),BorderLayout.NORTH);
         pack();
         validate();
@@ -86,19 +89,6 @@ public class OpponentsFrame extends JFrame {
                         table.setPreparations();
                         setVisible(false);
                     }
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        });
-        waitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    objOut.writeObject("Wait");
-                    table.setPlayerSide(FigureSide.WHITE);
-                    table.setPreparations();
-                    setVisible(false);
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

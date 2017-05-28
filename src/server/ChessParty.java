@@ -5,12 +5,14 @@ import board.Board;
 public class ChessParty {
    private Chesser playerThread1;
    private Chesser playerThread2;
-   private static Board board;
+   private Board board;
    private boolean full;
+   private String partyName;
 
     public ChessParty(Chesser player1) {
         this.playerThread1 = player1;
         board = playerThread1.getBoard();
+        partyName = playerThread1.getCurrentPlayer().getLogin();
         System.out.println(board.getCurrentPlayer().getSide());
         full = false;
     }
@@ -38,7 +40,18 @@ public class ChessParty {
         }
     }
 
+    public String getPartyName() {
+        return partyName;
+    }
+
     public boolean isFull() {
         return full;
+    }
+
+    public void setPartyNull(Chesser chesser) {
+        if (chesser.equals(playerThread1))
+            playerThread2.setParty(null);
+        if (chesser.equals(playerThread2))
+            playerThread1.setParty(null);
     }
 }

@@ -91,6 +91,8 @@ public class Table {
     private JMenu createFileMenu() {
         final JMenu netMenu = new JMenu("Net");
         final JMenuItem connect = new JMenuItem("Connect to server");
+        final JMenuItem chooseOpponent = new JMenuItem("Choose Opponent");
+        final JMenuItem exit = new JMenuItem("Exit");
         connect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -100,6 +102,7 @@ public class Table {
                         System.out.println("Connecting to server...");
                         fromserver = new Socket("localhost",4444);
                         connect.setLabel("Disconnet");
+                        chooseOpponent.setEnabled(true);
                     } catch (IOException e1) {
                         System.out.println("Fail to connect");
                     }
@@ -119,6 +122,7 @@ public class Table {
                 }
                 catch (IOException e1) {
                     connect.setLabel("Connect to server");
+                    chooseOpponent.setEnabled(false);
                     gameFrame.setTitle(title);
                     closeConnection();
                     System.out.println("Disconnected");
@@ -126,13 +130,27 @@ public class Table {
             }
         });
         netMenu.add(connect);
-        final JMenuItem exit = new JMenuItem("Exit");
         exit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);
             }
         });
+        chooseOpponent.setEnabled(false);
+        chooseOpponent.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    objOut.writeObject("Choose");
+                    objOut.flush();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                invokeOpponentsFrame(login);
+            }
+        });
+        netMenu.addSeparator();
+        netMenu.add(chooseOpponent);
         netMenu.addSeparator();
         netMenu.add(exit);
         return netMenu;
@@ -297,8 +315,8 @@ public class Table {
                                     if (objOut != null && trasition.getMoveStatus().isDone())
                                     try {
                                         objOut.writeObject(board);
-                                        if (board.getCurrentPlayer().isMate())
-                                        {
+                                        objOut.flush();
+                                        if (board.getCurrentPlayer().isMate()) {
                                             JFrame endFrame = new JFrame("You WIN");
                                             endFrame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
                                             endFrame.setPreferredSize(new Dimension(200,100));
@@ -306,11 +324,13 @@ public class Table {
                                             endFrame.add(new JLabel("You WIN"),CENTER);
                                             endFrame.validate();
                                             endFrame.setVisible(true);
+                                            invokeOpponentsFrame(login);
                                         }
                                         else
                                            setBoard();
                                     } catch (IOException e1) {
                                         System.out.println("No connection");
+                                        closeConnection();
                                     }
                                 }
                             }
@@ -400,9 +420,10 @@ public class Table {
                 {
                     try {
                         if (objIn != null)
-                            board = (Board)objIn.readObject();
+                            board = (Board)objIn.readObject();  // считывание из другого потока
                         boardPanel.redrawBoard(board);
-                        if (board.getCurrentPlayer().isMate())                        {
+                        if (board.getCurrentPlayer().isMate()) {
+                            objOut.writeObject(board);          // отправка в свой поток
                             JFrame endFrame = new JFrame("You LOSE");
                             endFrame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
                             endFrame.setPreferredSize(new Dimension(200,100));
@@ -410,9 +431,11 @@ public class Table {
                             endFrame.add(new JLabel("You LOSE"),CENTER);
                             endFrame.validate();
                             endFrame.setVisible(true);
+                            invokeOpponentsFrame(login);
                         }
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
+                        closeConnection();
                     }
                 }
             }
@@ -451,7 +474,6 @@ public class Table {
     {
         if (this.fromserver != null) {
             try {
-                this.objOut.flush();
                 this.objOut.close();
                 this.objIn.close();
                 this.fromserver.close();
